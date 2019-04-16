@@ -18,10 +18,13 @@ def Conv2DLSTM(inputs, state, output_channels, kernel_size, forgetBias = 1.0):
 
         return [output, output, nextCell]
 
+
+        # return [inputs, hidden, cell]
+
+
 def CNN(variable_scope, input_shape, output_shape, network):
      with tf.variable_scope(variable_scope):
          input = tf.placeholder(tf.float32, [None] + list(input_shape))
-         print('eeeeeeeeeeeeee', input)
          if network == 'LSTM':
              conv1 = Conv2D(32, kernel_size=8, strides=(4,4),padding='same',activation='relu',name='conv1')(input)
              conv2 = Conv2D(64, kernel_size=4, strides=(2,2),padding='same',activation='relu',name='conv2')(conv1)
@@ -52,5 +55,5 @@ def CNN(variable_scope, input_shape, output_shape, network):
 
 
          if network == 'LSTM':
-             return input_shape, value, policy, h_state, c_state, state_shape
+             return input, value, policy, h_state, c_state, state_shape
          return input, value, policy

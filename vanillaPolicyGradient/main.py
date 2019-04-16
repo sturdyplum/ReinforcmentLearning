@@ -7,7 +7,7 @@ import gym
 import datetime
 import tensorflow as tf
 import utils as U
-num_parallel = 1
+num_parallel = 3
 name_env = 'Pong-v0'
 network = 'LSTM'
 
@@ -27,8 +27,11 @@ def main():
     output_shape = (env.action_space.n,)
     sw = createSummaryWriter()
     agent = A2C(network, input_shape, output_shape,sw)
+    renderer = Environment(name_env, agent, sw, True)
+    renderer.daemon = True
+    renderer.start()
     while True:
-        environments = [Environment(name_env, agent, sw) for _ in range(num_parallel)]
+        environments = [Environment(name_env, agent, sw, False) for x in range(num_parallel)]
         for env in environments:
             env.daemon = True
             env.start()
@@ -37,6 +40,8 @@ def main():
             env.join()
 
         agent.updateModel(Environment.training_queue)
+        Environment.training_queue = []
+
 
 if __name__ == '__main__':
     main()

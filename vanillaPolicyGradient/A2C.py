@@ -36,8 +36,7 @@ class A2C:
                 self.c_state:np.array([c_state])
             })
             policy = policy[0]
-
-            return np.random.choice(len(policy), p=policy), h_state, c_state
+            return np.random.choice(len(policy), p=policy), h_state[0], c_state[0]
 
     def getValue(self, observation, h_state, c_state):
         with self.session.as_default():
@@ -67,7 +66,7 @@ class A2C:
             opt = tf.train.AdamOptimizer(self.learning_rate)
 
             grads, vars = zip(*opt.compute_gradients(loss))
-            grads, glob_norm = tf.clip_by_global_norm(grads, 40.0)
+            grads, glob_norm = tf.clip_by_global_norm(grads, 5.0)
             self.train_op = opt.apply_gradients(zip(grads, vars))
 
             summary = []
