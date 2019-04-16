@@ -1,12 +1,15 @@
+import sys
+sys.path.append('../')
+import numpy as np
 from A2C import A2C
 from Environment import Environment
 import gym
 import datetime
 import tensorflow as tf
-
+import utils as U
 num_parallel = 1
-name_env = 'CartPole-v0'
-network = 'fcn'
+name_env = 'Pong-v0'
+network = 'LSTM'
 
 def createSummaryWriter():
     TBDIR = ''
@@ -19,6 +22,8 @@ def createSummaryWriter():
 def main():
     env = gym.make(name_env)
     input_shape = env.observation_space.shape
+    input_shape = U.preprocess(np.zeros(input_shape)).shape
+    print(input_shape)
     output_shape = (env.action_space.n,)
     sw = createSummaryWriter()
     agent = A2C(network, input_shape, output_shape,sw)

@@ -1,8 +1,11 @@
+import sys
+sys.path.append('../')
 import gym
 import threading
 from Rollout import Rollout
 import tensorflow as tf
 import numpy as np
+import utils as U
 
 class Environment(threading.Thread):
 
@@ -20,20 +23,29 @@ class Environment(threading.Thread):
 
     def run(self):
         done = False
-        observation = self.env.reset()
+        observation = U.preprocess(self.env.reset())
         steps = 0
         score = 0
+
+        h_state = np.zeros(self.agent.state_shape)
+        c_state = np.zeros(self.agent.state_shape)
+
         while not done:
             steps += 1
-            action = self.agent.act(observation)
+            old_h_state = h_state
+            old_c_state = c_state
+
+            action, h_state, c_state = self.agent.act(observation, h_state, c_state)
             old_obs = observation
             observation, reward, done, _ = self.env.step(action)
+            observation = U.preprocess(observation)
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', observation.shape)
             score += reward
-            self.rollout.add(reward, old_obs, np.eye(self.agent.output_shape[0])[action])
+            self.rollout.add(reward, old_obs, np.eye(self.agent.output_shape[0])[action], old_h_state, old_c_state)
             if (steps % self.n_step == 0) or done:
                 last_reward = 0
                 if not done:
-                    last_reward = self.agent.getValue(observation)
+                    last_reward = self.agent.getValue(observation, h_state, c_state)
                 batch = self.rollout.make_data(last_reward, self.agent.discount)
                 with Environment.LOCK:
                     Environment.training_queue.append(batch)

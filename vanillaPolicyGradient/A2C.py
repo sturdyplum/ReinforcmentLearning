@@ -22,24 +22,29 @@ class A2C:
         self.session = tf.Session(config=config)
         K.set_session(self.session)
         K.manual_variable_initialization(True)
-        self.input, self.value, self.policy = CNN('A2C', input_shape, output_shape, network)
+        self.input, self.value, self.policy, self.h_state, self.c_state, self.state_shape = CNN('A2C', input_shape, output_shape, network)
         self.buildLoss('A2C')
         self.session.run(tf.global_variables_initializer())
         self.default_graph = tf.get_default_graph()
         self.default_graph.finalize()
 
-    def act(self, observation):
+    def act(self, observation, h_state, c_state):
         with self.session.as_default():
-            policy  = self.session.run(self.policy, feed_dict = {
-                self.input:np.array([observation])
-            })[0]
+            policy, h_state, c_state  = self.session.run([self.policy, self.h_state, self.c_state], feed_dict = {
+                self.input:np.array([observation]),
+                self.h_state:np.array([h_state]),
+                self.c_state:np.array([c_state])
+            })
+            policy = policy[0]
 
-            return np.random.choice(len(policy), p=policy)
+            return np.random.choice(len(policy), p=policy), h_state, c_state
 
-    def getValue(self, observation):
+    def getValue(self, observation, h_state, c_state):
         with self.session.as_default():
             return self.session.run(self.value, feed_dict = {
-                self.input:np.array([observation])
+                self.input:np.array([observation]),
+                self.h_state:np.array([h_state]),
+                self.c_state:np.array([c_state])
             })
 
     def buildLoss(self, variable_scope):
@@ -89,10 +94,14 @@ class A2C:
                 feed[self.input] = batch['observations']
                 feed[self.target_value] = batch['rewards']
                 feed[self.action_selected] = batch['action_selected']
+                feed[self.h_state] = batch['h_state']
+                feed[self.c_state] = batch['c_state']
             else:
                 feed[self.input] = np.concatenate((feed[self.input], batch['observations']))
                 feed[self.target_value]= np.concatenate((feed[self.target_value], batch['rewards']))
                 feed[self.action_selected] = np.concatenate((feed[self.action_selected],batch['action_selected']))
+                feed[self.h_state] = np.concatenate((feed[self.h_state],batch['h_state']))
+                feed[self.c_state] = np.concatenate((feed[self.c_state],batch['c_state']))
 
         _, summary = self.session.run([self.train_op,self.summary_op], feed_dict = feed)
         self.training_counter +=  1
