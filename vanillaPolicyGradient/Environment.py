@@ -6,25 +6,27 @@ from Rollout import Rollout
 import tensorflow as tf
 import numpy as np
 import utils as U
+import time
 
 class Environment(threading.Thread):
 
     LOCK = threading.Lock()
     training_queue = []
     games = 0
+    wait = 0
 
     def __init__(self, name_env, agent, summary_writer, renderer):
         threading.Thread.__init__(self)
         self.env = gym.make(name_env)
         self.agent = agent
-        self.n_step = 8
+        self.n_step = 40
         self.rollout = Rollout()
         self.summary_writer = summary_writer
         self.renderer = renderer
-
+        self.canGo = False
+        
     def run(self):
         while True:
-
             done = False
             observation = U.preprocess(self.env.reset())
             steps = 0
@@ -53,6 +55,11 @@ class Environment(threading.Thread):
                         batch = self.rollout.make_data(last_reward, self.agent.discount)
                         with Environment.LOCK:
                             Environment.training_queue.append(batch)
+                            Environment.wait -= 1
+                        while not self.canGo:
+                            time.sleep(.0001)
+                        self.canGo = False
+
             if not self.renderer:
                 sum = tf.Summary()
                 sum.value.add(tag='score', simple_value=score)
@@ -62,4 +69,3 @@ class Environment(threading.Thread):
 
                 self.summary_writer.add_summary(sum, local_games)
                 self.env.close()
-                return

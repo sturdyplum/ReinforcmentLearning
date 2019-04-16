@@ -6,8 +6,9 @@ from Environment import Environment
 import gym
 import datetime
 import tensorflow as tf
+import time
 import utils as U
-num_parallel = 3
+num_parallel = 10
 name_env = 'Pong-v0'
 network = 'LSTM'
 
@@ -30,17 +31,24 @@ def main():
     renderer = Environment(name_env, agent, sw, True)
     renderer.daemon = True
     renderer.start()
+    environments = [Environment(name_env, agent, sw, False) for x in range(num_parallel)]
+    Environment.wait = num_parallel
+    for env in environments:
+        env.daemon = True
+        env.start()
     while True:
-        environments = [Environment(name_env, agent, sw, False) for x in range(num_parallel)]
-        for env in environments:
-            env.daemon = True
-            env.start()
+        if Environment.wait == 0:
+            agent.updateModel(Environment.training_queue)
+            Environment.training_queue = []
+            Environment.wait = num_parallel
+            for env in environments:
+                env.canGo = True
+        else:
+            time.sleep(.0001)
 
-        for env in environments:
-            env.join()
+    for env in environments:
+        env.join()
 
-        agent.updateModel(Environment.training_queue)
-        Environment.training_queue = []
 
 
 if __name__ == '__main__':

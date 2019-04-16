@@ -14,7 +14,7 @@ class A2C:
         self.input_shape = input_shape
         self.output_shape = output_shape
         self.training_counter = 0
-        self.learning_rate = 1e-4
+        self.learning_rate = 1e-5
         self.discount = .99
         self.summary_writer = summary_writer
         config = tf.ConfigProto(allow_soft_placement=True)
@@ -66,7 +66,7 @@ class A2C:
             opt = tf.train.AdamOptimizer(self.learning_rate)
 
             grads, vars = zip(*opt.compute_gradients(loss))
-            grads, glob_norm = tf.clip_by_global_norm(grads, 5.0)
+            grads, glob_norm = tf.clip_by_global_norm(grads, 50.0)
             self.train_op = opt.apply_gradients(zip(grads, vars))
 
             summary = []
