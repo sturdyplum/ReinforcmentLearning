@@ -8,7 +8,7 @@ import datetime
 import tensorflow as tf
 import time
 import utils as U
-num_parallel = 1
+num_parallel = 11
 name_env = 'Pong-v0'
 network = 'LSTM'
 
@@ -19,7 +19,7 @@ def createSummaryWriter():
     title = name_env + "_" + stamp + "_x" + str(num_parallel)
     TBDIR = './tb/' + title
     return tf.summary.FileWriter(TBDIR)
-
+    
 def main():
     env = gym.make(name_env)
     input_shape = env.observation_space.shape
@@ -43,7 +43,7 @@ def main():
             for env in environments:
                 env.canGo = True
         else:
-            time.sleep(.0001)
+            time.sleep(.001)
 
     for env in environments:
         env.join()

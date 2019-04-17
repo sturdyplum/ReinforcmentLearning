@@ -23,7 +23,7 @@ class A2C:
         self.session = tf.Session(config=config)
         K.set_session(self.session)
         K.manual_variable_initialization(True)
-        self.input, self.value, self.policy, self.h_state, self.c_state, self.state_shape = CNN('A2C', input_shape, output_shape, network)
+        self.input, self.value, self.policy, self.h_state, self.c_state, self.h_state_out, self.c_state_out, self.state_shape = CNN('A2C', input_shape, output_shape, network)
         self.buildLoss('A2C')
         self.session.run(tf.global_variables_initializer())
         self.default_graph = tf.get_default_graph()
@@ -31,7 +31,7 @@ class A2C:
 
     def act(self, observation, h_state, c_state):
         with self.session.as_default():
-            policy, value, h_state, c_state  = self.session.run([self.policy, self.value, self.h_state, self.c_state], feed_dict = {
+            policy, value, h_state, c_state  = self.session.run([self.policy, self.value, self.h_state_out, self.c_state_out], feed_dict = {
                 self.input:np.array([observation]),
                 self.h_state:np.array([h_state]),
                 self.c_state:np.array([c_state])
@@ -87,7 +87,7 @@ class A2C:
 
         feed = {}
         for batch in queue:
-            if self.input not in batch:
+            if self.input not in feed:
                 feed[self.input] = batch['observations']
                 feed[self.target_value] = batch['rewards']
                 feed[self.action_selected] = batch['action_selected']
@@ -102,9 +102,6 @@ class A2C:
                 feed[self.c_state] = np.concatenate((feed[self.c_state],batch['c_state']))
                 feed[self.advantage] = np.concatenate((feed[self.advantage], batch['advantage']))
 
-        # print(?"PPPPPPPPPPPPPPPPPP", self.session.run(self.c_state), feed_dict=feed)
-        # print(self.session.run(self.h_state), feed_dict=feed)
-        # print(feed[self.input].shape, feed[self.h_state].shape,'ooooooooooooooo')
         _, summary = self.session.run([self.train_op,self.summary_op], feed_dict = feed)
         self.training_counter +=  1
         self.summary_writer.add_summary(summary, self.training_counter)

@@ -59,6 +59,8 @@ class Environment(threading.Thread):
                         while not self.canGo:
                             time.sleep(.0001)
                         self.canGo = False
+                else:
+                    time.sleep(.002)
 
             if not self.renderer:
                 sum = tf.Summary()
