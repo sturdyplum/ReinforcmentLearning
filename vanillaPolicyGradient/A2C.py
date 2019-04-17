@@ -14,7 +14,7 @@ class A2C:
         self.input_shape = input_shape
         self.output_shape = output_shape
         self.training_counter = 0
-        self.learning_rate = 1e-5
+        self.learning_rate = 1e-3
         self.discount = .99
         self.LAMBDA = 1
         self.summary_writer = summary_writer
@@ -102,7 +102,9 @@ class A2C:
                 feed[self.c_state] = np.concatenate((feed[self.c_state],batch['c_state']))
                 feed[self.advantage] = np.concatenate((feed[self.advantage], batch['advantage']))
 
-
+        # print(?"PPPPPPPPPPPPPPPPPP", self.session.run(self.c_state), feed_dict=feed)
+        # print(self.session.run(self.h_state), feed_dict=feed)
+        # print(feed[self.input].shape, feed[self.h_state].shape,'ooooooooooooooo')
         _, summary = self.session.run([self.train_op,self.summary_op], feed_dict = feed)
         self.training_counter +=  1
         self.summary_writer.add_summary(summary, self.training_counter)
