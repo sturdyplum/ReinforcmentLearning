@@ -24,7 +24,7 @@ class Environment(threading.Thread):
         self.summary_writer = summary_writer
         self.renderer = renderer
         self.canGo = False
-        
+
     def run(self):
         while True:
             done = False
@@ -41,18 +41,18 @@ class Environment(threading.Thread):
                 old_c_state = c_state
                 if self.renderer:
                     self.env.render()
-                action, h_state, c_state = self.agent.act(observation, h_state, c_state)
+                action, value, h_state, c_state = self.agent.act(observation, h_state, c_state)
                 old_obs = observation
                 observation, reward, done, _ = self.env.step(action)
                 observation = U.preprocess(observation)
                 score += reward
                 if not self.renderer:
-                    self.rollout.add(reward, old_obs, np.eye(self.agent.output_shape[0])[action], old_h_state, old_c_state)
+                    self.rollout.add(reward, old_obs, np.eye(self.agent.output_shape[0])[action], value, old_h_state, old_c_state)
                     if (steps % self.n_step == 0) or done:
                         last_reward = 0
                         if not done:
                             last_reward = self.agent.getValue(observation, h_state, c_state)
-                        batch = self.rollout.make_data(last_reward, self.agent.discount)
+                        batch = self.rollout.make_data(last_reward, self.agent.discount, self.agent.LAMBDA)
                         with Environment.LOCK:
                             Environment.training_queue.append(batch)
                             Environment.wait -= 1
