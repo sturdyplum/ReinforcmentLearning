@@ -10,7 +10,7 @@ scipy==1.2.1
 ```
 
 ## Getting Started
-To get started first clone the repo localy. Currently the only algorithm implemented is A2C, to run A2C move to the ReinforcmentLearning\vanillaPolicyGradient folder in terminal and start it by running:
+To get started first clone the repo localy. Currently the algorithms implemented are A2C and PPO. To run one of there simply go into its respective folder and run the main.py file.
 
 ```
 python main.py
