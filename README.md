@@ -1,7 +1,7 @@
 # Simple Reinforcment Learning Implementations
 Implementations of popular reinfocment learning algorithms integrated with OpenAI Gym. Meant to be easy to understand.
 
-## Prerequisites
+## Setup
 Install the required libraries. First do:
 ```
 pip install -r requirements.txt
