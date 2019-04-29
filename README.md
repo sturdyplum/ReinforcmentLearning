@@ -2,15 +2,18 @@
 Implementations of popular reinfocment learning algorithms integrated with OpenAI Gym. Meant to be easy to understand.
 
 ## Prerequisites
+Install the required libraries. First do:
 ```
-gym==0.12.1
-tensorflow==1.13.1
-numpy==1.16.2
-scipy==1.2.1
+pip install -r requirements.txt
 ```
 
-## Getting Started
-To get started first clone the repo localy. Currently the algorithms implemented are A2C and PPO. To run one of there simply go into its respective folder and run the main.py file.
+Then you will need to install another library to run atari-py. A forked version that includes Windows support is used. To install it, run the command:
+```
+pip install --no-index -f https://github.com/Kojoley/atari-py/releases atari_py
+```
+
+## Running
+To get started first clone the repo locally. Currently the algorithms implemented are A2C and PPO. To run one of there simply go into its respective folder and run the main.py file.
 
 ```
 python main.py
@@ -18,7 +21,7 @@ python main.py
 The agent should begin to train automatically and a non training agent will render the game with an up to date network. 
 
 ## Configurations
-Flags are not yet implemented, to change the enironment or number of parallel agents simply change the corresponding variables in the main.py file.
+Flags are not yet implemented, to change the environment or number of parallel agents simply change the corresponding variables in the main.py file.
 
 ## Authors
 * **Pablo Beltran** - [Sturdyplum](https://github.com/Sturdyplum)
