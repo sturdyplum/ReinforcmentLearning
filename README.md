@@ -19,6 +19,12 @@ To get started first clone the repo locally. Currently the algorithms implemente
 python main.py
 ```
 The agent should begin to train automatically and a non training agent will render the game with an up to date network. 
+### Visualization
+To get a live visualization of the agent perfomrance use:
+```
+tensorboard --logdir=tb
+```
+While inside the same directory as the main.py
 
 ## Configurations
 Flags are not yet implemented, to change the environment or number of parallel agents simply change the corresponding variables in the main.py file.
