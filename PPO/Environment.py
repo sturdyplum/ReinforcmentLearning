@@ -72,7 +72,7 @@ class Environment(threading.Thread):
                             time.sleep(.0001)
                         self.canGo = False
                 else:
-                    time.sleep(.002)
+                    time.sleep(1/60.0)
 
             if not self.renderer:
                 sum = tf.Summary()
