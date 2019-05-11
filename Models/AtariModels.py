@@ -23,17 +23,17 @@ def CNN(variable_scope, input_shape, output_shape, network):
      with tf.variable_scope(variable_scope):
          input = tf.placeholder(tf.float32, [None] + list(input_shape), name='input')
          if network == 'LSTM':
-             conv1 = Conv2D(32, kernel_size=8, strides=(4,4),padding='same',activation='relu',name='conv1')(input)
-             conv2 = Conv2D(64, kernel_size=4, strides=(2,2),padding='same',activation='relu',name='conv2')(conv1)
-             conv3 = Conv2D(64, kernel_size=3, strides=(1,1),padding='same',activation='relu',name='conv3')(conv2)
+             conv1 = Conv2D(4, kernel_size=8, strides=(4,4),padding='same',activation='relu',name='conv1')(input)
+             conv2 = Conv2D(8, kernel_size=4, strides=(2,2),padding='same',activation='relu',name='conv2')(conv1)
+             conv3 = Conv2D(16, kernel_size=3, strides=(1,1),padding='same',activation='relu',name='conv3')(conv2)
 
-             state_shape = (conv3.shape[1], conv3.shape[2], 32)
+             state_shape = (conv3.shape[1], conv3.shape[2], 16)
              h_state_in = tf.placeholder(tf.float32, [None] + list(state_shape), name='h_state_in')
              c_state_in = tf.placeholder(tf.float32, [None] + list(state_shape), name='c_state_in')
 
-             lstm, h_state_out, c_state_out = Conv2DLSTM(conv3,(h_state_in, c_state_in),32,3)
+             lstm, h_state_out, c_state_out = Conv2DLSTM(conv3,(h_state_in, c_state_in),16,3)
              flatConv3 = Flatten(name='flatConv3')(lstm)
-             fc1 = Dense(512,activation='relu')(flatConv3)
+             fc1 = Dense(32,activation='relu')(flatConv3)
          elif network == 'CNN':
              conv1 = Conv2D(32, kernel_size=8, strides=(4,4),padding='same',activation='relu',name='conv1')(input)
              conv2 = Conv2D(64, kernel_size=4, strides=(2,2),padding='same',activation='relu',name='conv2')(conv1)

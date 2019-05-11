@@ -1,12 +1,15 @@
 import sys
 sys.path.append('../')
+sys.path.append('../Games')
 import gym
+from Chase import Chase
 import threading
 from Rollout import Rollout
 import tensorflow as tf
 import numpy as np
 import utils as U
 import time
+
 
 class Environment(threading.Thread):
 
@@ -15,20 +18,27 @@ class Environment(threading.Thread):
     games = 0
     wait = 0
 
-    def __init__(self, name_env, agent, summary_writer, renderer):
+    def __init__(self, name_env, agent, summary_writer, renderer, customEnv):
         threading.Thread.__init__(self)
-        self.env = gym.make(name_env)
+        if not customEnv:
+            self.env = gym.make(name_env)
+        else:
+            self.env = Chase(100,100)
         self.agent = agent
         self.n_step = 40
         self.rollout = Rollout()
         self.summary_writer = summary_writer
         self.renderer = renderer
         self.canGo = False
+        self.customEnv = customEnv
 
     def run(self):
         while True:
             done = False
-            observation = U.preprocess(self.env.reset())
+            if not self.customEnv:
+                observation = U.preprocess(self.env.reset())
+            else:
+                observation = self.env.reset()
             steps = 0
             score = 0
 
@@ -37,6 +47,7 @@ class Environment(threading.Thread):
 
             while not done:
                 steps += 1
+                # print("STEP", steps)
                 old_h_state = h_state
                 old_c_state = c_state
                 if self.renderer:
@@ -44,7 +55,8 @@ class Environment(threading.Thread):
                 action, value, h_state, c_state, policy = self.agent.act(observation, h_state, c_state)
                 old_obs = observation
                 observation, reward, done, _ = self.env.step(action)
-                observation = U.preprocess(observation)
+                if not self.customEnv:
+                    observation = U.preprocess(observation)
                 score += reward
                 if not self.renderer:
                     self.rollout.add(reward, old_obs, np.eye(self.agent.output_shape[0])[action], value, old_h_state, old_c_state, policy)
